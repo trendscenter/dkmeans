@@ -4,6 +4,8 @@
 Created on Fri Oct 27 14:19:54 2017
 
 @author: bbaker
+
+Perform pooled k-means clustering using the sklearn library
 """
 import numpy as np
 from sklearn.cluster import KMeans
@@ -22,6 +24,7 @@ def main(X, k, s, steps=np.Inf):
     w = [r.reshape([m, n]) for r in list(w)]
     return {'w': w, 'C': labels, 'X': X, 'iter': kmeans_model.n_iter_,
             'name': 'pooled'}
+
 
 if __name__ == '__main__':
     w = main()

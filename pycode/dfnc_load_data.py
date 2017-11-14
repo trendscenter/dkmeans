@@ -3,25 +3,32 @@
 """
 Created on Thu Oct 26 11:07:30 2017
 
+Data loading utiliy functions
+
 @author: bbaker
 """
 import scipy.io as sio
 import numpy as np
 
 
-def load_exemplar():
-    TCDir = '/export/mialab/users/bbaker/projects/djica/tests3/IOTA/SIM/22Sep2017/increase_both/s2048-n64-nc20-r1/IC.mat'
+def load_sim_tcs():
+    """ Load simulated timecourses after djICA preprocessing """
+    TCDir = ("/export/mialab/users/bbaker/projects/djica/tests3"
+             "/IOTA/SIM/22Sep2017/increase_both/s2048-n64-nc20-r1/IC.mat")
     TC = sio.loadmat(TCDir)
     return TC['Shat_'][0]
 
 
-def load_real_exemplar():
-    TCDir = '/export/mialab/users/bbaker/projects/djica/tests3/final/s2016-n63-nc50-r1/IC.mat'
+def load_real_tcs():
+    """ Load real timecourses after djICA preprocessing """
+    TCDir = ("/export/mialab/users/bbaker/projects/djica/tests3"
+             "/final/s2016-n63-nc50-r1/IC.mat")
     TC = sio.loadmat(TCDir)
     return TC['Shat'][0]
 
 
 def window_tc(TC, winsize, transpose=False):
+    """ Using a sliding window, find the windows with maximum variance """
     TC_w = []
     TC_v = []
     start = 0
@@ -39,6 +46,9 @@ def window_tc(TC, winsize, transpose=False):
 
 
 def window_all_tc(Shat_, winsize, n=0, transpose=False):
+    """ Using a sliding window, finding maximally covariant window for
+        all subjects
+    """
     Shat_w = []
     if n <= 0:
         n = len(Shat_)
@@ -47,10 +57,3 @@ def window_all_tc(Shat_, winsize, n=0, transpose=False):
         w = window_tc(Shat_[i], 50, transpose)
         Shat_w += w
     return Shat_w
-
-
-if __name__ == '__main__':
-    TC = load_real_exemplar()
-    Shat_ = TC
-    ws = 50
-    Shat_w = window_all_tc(Shat_, ws, 10, transpose=True)

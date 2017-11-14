@@ -1,4 +1,6 @@
 """
+TODO: Fix this - it is currently broken
+
 Compute Multi-Shot Gaussian Mixture Model with Expectation Maximization
 
 Algorithm Flow -
@@ -17,13 +19,11 @@ Algorithm Flow -
 """
 
 import numpy as np
-from dkmeans_util import (plot_clustering, simulated_gaussian_cluster,
-                          random_split_over_nodes,
-                          plot_clustering_node_subplots,
-                          save_frames_to_gif)
+from dkmeans_util import random_split_over_nodes
 
 
-def dgmm_ms_em_remote_initialize_random_gaussian(N,k):
+def dgmm_ms_em_remote_gaussian_centroids(N,k):
+    """ Generate random gaussian centroids at the aggregator """
     muk = [np.random.randn(1,1).flatten() for i in range(k)]
     sigmak = [np.random.randn(N,N) for i in range(k)]
     for i in range(k):

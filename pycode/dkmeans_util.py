@@ -75,8 +75,8 @@ def plot_clustering(D, C, w, k, s, N, xlab='x', ylab='y', title='', legend=[]):
     plt.title(title)
     plt.show()
     return fig
-    
-    
+
+
 def plot_clustering_node_subplots(Df, Cf, W, k, s, xlab='x',
                                   ylab='y', title=''):
     markers = ["v", "^", "<", ">", "1", "2", "3", "4", "8",

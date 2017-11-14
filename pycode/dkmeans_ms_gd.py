@@ -25,11 +25,13 @@ from scipy.spatial.distance import cdist
 
 
 def dkm_ms_remote_initialize_centroids(n, m, k):
+    """ Random gaussian centroids """
     w = [np.random.randn(m, n).flatten() for i in range(k)]
     return w
 
 
 def dkm_ms_local_initialize_own_centroids(local_D, k):
+    """ Random local centroids """
     ii = np.random.choice(len(local_D), k)
     w = []
     for i in ii:
@@ -38,6 +40,7 @@ def dkm_ms_local_initialize_own_centroids(local_D, k):
 
 
 def dkm_ms_remote_aggregate_gradient(local_G, m, n, k):
+    """ Aggregate global gradient as sum of local gradients """
     remote_G = np.zeros([m, n, k])
     for lG in local_G:
         remote_G += lG
@@ -45,6 +48,7 @@ def dkm_ms_remote_aggregate_gradient(local_G, m, n, k):
 
 
 def dkm_ms_remote_update_centroids(remote_G, w):
+    """ update centroids on aggregator only, then broadcast """
     wo = [np.array(wi) for wi in w]
     for k in range(len(w)):
         w[k] += remote_G[:, :, k].reshape(w[k].shape)
@@ -52,8 +56,8 @@ def dkm_ms_remote_update_centroids(remote_G, w):
 
 
 def dkm_ms_remote_check_stopping(w, wo, epsilon):
-    delta = np.sum([abs(w[i] - wo[i]) for i in range(len(w))])
-    # print("Delta", delta)
+    """ Check stopping condition on the aggregator """
+    delta = np.sum([cdist(w[i], wo[i]) for i in range(len(w))])
     result = delta > epsilon
     return result, delta
 
@@ -87,18 +91,20 @@ def main(X, k, s=2, ep=0.00001, e=0.0001, N=2000):
         [m, n] = 1, X[0].size
     nodes, inds = random_split_over_nodes(X, s)
     w = []
+    # At each site initialize K centroids
     for si in range(s):
         wi = dkm_ms_local_initialize_own_centroids(nodes[si], k)
         w += wi
+    # Then randomly select K from those k*s centroids
     np.random.shuffle(w)
     w = w[:k]
-    b = True
-    i = 0
+    not_converged = True  # convergence
+    i = 0  # iterations
     D = []
-    Del = []
+    Delta = []
     for node in nodes:
         D += node
-    while b:
+    while not_converged:
         lG = []
         C = []
         Cl = []
@@ -110,14 +116,12 @@ def main(X, k, s=2, ep=0.00001, e=0.0001, N=2000):
             lG += [liG]
             C += Ci
             Z += Zi
+        # Remote steps - Aggregate Gradient, Update Centroids, Check Stopping
         G = dkm_ms_remote_aggregate_gradient(lG, m, n, k)
         [w, w0] = dkm_ms_remote_update_centroids(G, w)
         b, delta = dkm_ms_remote_check_stopping(w, w0, ep)
         i += 1
-        Del += [delta]
+        Delta += [delta]
         if i > N:
             break
-    return {'w': w, 'C': C, 'X': D, 'delta': Del, 'iter': i, 'name': 'ms_gd'}
-
-if __name__ == '__main__':
-    w = main()
+    return {'w': w, 'C': C, 'X': D, 'delta': Delta, 'iter': i, 'name': 'ms_gd'}
