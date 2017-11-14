@@ -49,6 +49,94 @@ The strategies for **multi-shot decentralization** were partially inspired by ::
 
 Currently only Lloyd's Algorithm and Gradient Descent converge correctly. The Gaussian Mixture still requires work w.r.t computing the global Multivariate Standard Deviations in particular. 
 
+Single-Shot Decentralized LLoyd
+_________________
+
+*Algorithm Flow*  ::
+
+    1: On each site, initialize Random Centroids
+    2: On each site, compute a clustering C with k-many clusters
+    3: On each site, compute a local mean for each cluster in C
+    4: On each site, recompute centroids as equal to local means
+    5: On each site,
+        if change in centroids below some epsilon, STOP, report STOPPED
+        else GOTO step 3
+    6: On each site, broadcast local centroids to aggregator
+    7: On the aggregator, compute merging of clusters according to
+        least merging error (e.g. smallest distance betweeen centroids)
+    8: Broadcast merged centroids to all sites
+
+Multi-Shot Decentralized LLoyd
+_________________
+
+*Algorithm Flow* ::
+
+    1: On the aggregator, initialize random Centroids
+        (either entirely remotely computed or shared between local sites)
+    2: Broadcast Centroids to all Sites
+    3: On each site, compute a clustering C with k-many clusters
+    4: On each site, compute a local mean for each cluster in C
+    5: On each site, broadcast local mean to the aggregator
+    6: On the aggregator, compute the global means for each Cluster
+    7: On the aggregator, recompute centroids as equal to global means
+    8: On the aggregator,
+        if change in centroids below some epsilon, broadcast STOP
+        else broadcast new centroids, GOTO step 3
+
+Single-Shot Decentralized Gradient Descent
+_________________
+
+*Algorithm Flow* ::
+
+    1: On each site, initialize Random Centroids
+    2: On each site, compute a clustering C with k-many clusters
+    3: On each site, compute a local gradient for each cluster in C
+    4: On each site, update centroids via gradient descent
+    5: On each site,
+        if change in centroids below some epsilon, STOP, report STOPPED
+        else GOTO step 3
+    6: On each site, broadcast local centroids to aggregator
+    7: On the aggregator, compute merging of clusters according to
+        least merging error (e.g. smallest distance betweeen centroids)
+    8: Broadcast merged centroids to all sites
+
+
+Multi-Shot Decentralized Gradient Descent
+_________________
+
+*Algorithm Flow* ::
+
+    1: On the aggregator, initialize random Centroids 
+        (either entirely remotely computed or shared between local sites)
+    2: Broadcast Centroids to all Sites
+    3: On each site, compute a clustering C with k-many clusters
+    4: On each site, compute a local gradient for each cluster in C
+    5: On each site, broadcast local gradient to the aggregator
+    6: On the aggregator, compute the global gradients for each Cluster
+    7: On the aggregator, update centroids according to gradient descent
+    8: On the aggregator,
+        if change in centroids below some epsilon, broadcast STOP
+        else broadcast new centroids, GOTO step 3
+
+Multi-Shot Gaussian Mixture Model with Expectation Maximization
+___________________
+
+*Algorithm Flow* ::
+
+    1: On the aggregator, initialize random normal distributions, Theta
+    2: Broadcast Theta to all sites
+    3: all sites, compute weights for each cluster according to local data
+    4: all sites, compute partial Nk 
+    5: all sites, broadcast partial Nk and weights to aggregator
+    6: Aggregator, compute mu for each cluster k, broadcast to sites
+    7: All sites, compute partial sigma_k pass to aggregator
+    8: Aggregator, compute sigma_k, broadcast to all sites
+    9: All sites, locally compute partial log-likelihood
+    10: Aggregator check change in log-likelihood
+            if below epsilon, broadcast STOP
+            else GOTO 3
+
+
 Running the Implementation
 ---------------
 
