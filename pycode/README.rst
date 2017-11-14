@@ -66,3 +66,17 @@ or can be run in the experiments script, dkmeans_experiments.py
 
   >>> import dkmeans_experiments as exp
   >>> exp.main()
+
+Experiments
+_______________
+
+The dkmeans_experiments.py file currently runs the following experiments::
+  
+  1. Test all methods on gaussian data with known number of clusters.
+  2. Test all methods on gaussian data, iris data set, simulated fMRI, and real fMRI,
+      increasing the number of clusters, keeping the number of samples constant
+  3. Test all methods with best guess number of clusters, increasing the number
+      of samples in the data **TODO**
+  4.  Test fMRI data with increasing number of subjects **TODO**
+  5.  Test variations in the subject/sites distrubtions **TODO**
+  6.  Test drop-out behavior, when one or multiple nodes drop out during an iteration **TODO**
