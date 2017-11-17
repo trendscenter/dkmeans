@@ -20,7 +20,7 @@ from sklearn import metrics
 from sklearn import datasets
 from time import time
 import itertools
-DEFAULT_METHODS = {'pooled': kp.main,
+M = {'pooled': kp.main,
                    'ss_ll': dksl.main,
                    'ss_gd': dksg.main,
                    'ms_ll': dkml.main,
