@@ -1,5 +1,5 @@
 # The module was tested in python versions 2.7.12 and 3.5.2
-python_version>="2.7"
+python_version>=2.7
 # Packages
 matplotlib==1.5.3
 numpy==1.11.1
