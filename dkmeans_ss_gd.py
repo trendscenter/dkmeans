@@ -184,4 +184,4 @@ def main(X, k, s=2, ep=0.00001, e=0.0001, N=2000):
         Ci, Zi = dkm_ss_gd_local_compute_clustering(node, w)
         C += Ci
 
-    return {'w': w, 'C': C, 'X': D, 'delta': Delta, 'iter': i, 'name': 'ss_gd_gd'}
+    return {'w': w, 'C': C, 'X': D, 'delta': Delta, 'iter': i, 'name': 'ss_gd'}

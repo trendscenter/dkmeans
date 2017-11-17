@@ -27,6 +27,8 @@ M = {'pooled': kp.main,
                    'ms_gd': dkmg.main
                    }
 
+METHODS = list(M.keys())
+
 def get_dataset(N, dset='gaussian', theta=[[0, 1]], win=50, m=1, n=2):
     """Convenience function for getting data sets by name
         TODO: Should this be moved to the load data functions? (yes)
@@ -72,7 +74,7 @@ def run_method(X, k, s, method='pooled'):
 def run_experiment(k, N, dset='gaussian', theta=[[0, 1]],
                    win=50, m=1, n=2, s=2,
                    metrics=['silhouette'],
-                   methods=['pooled', 'ss_ll', 'ss_gd']):
+                   methods=METHODS):
     """
         Run an experiment with a particular choice of
             1. Data set
@@ -92,12 +94,7 @@ def run_experiment(k, N, dset='gaussian', theta=[[0, 1]],
 
 def run_repeated_experiment(R, k, N, dset='gaussian', theta=[[0, 1]], win=50,
                             m=1, n=2, s=2, metrics=['silhouette'],
-                            methods=[
-                                     'pooled',
-                                     'ss_ll',
-                                     'ss_gd',
-                                     'ms_ll',
-                                     'ms_gd']):
+                            methods=METHODS):
     """
         Run repeated experiments - this function may be unnecesarry and 
         cluttered?
