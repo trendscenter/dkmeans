@@ -1,14 +1,16 @@
-dKMeans
+Distributed Kmeans
 ===============
 .. contents::
 
+
 Introduction
 ---------------
-
-This directory contains files for decentralized k-means and other clustering.
+Currently this directory contains proof of concept scripts for various approaches to distributed k-means and distributed clustering in general. There are six scripts which instantiate particular algorithms for distributed k-means, two utility scripts, and one script for running experiments.
 
 Algorithms
 ---------------
+
+The six scripts currently implemented for distributed k-means take different approaches to the problems of decentralization and optimization. There are two 'Single-Shot' scripts, which implement local optimization techniques and global merging strategies, and three 'Multi-Shot' scripts which implement global optimizations which depend on communication betweeen nodes during the optimization itself. 
 
 Three different optimization algorithms are implemented
 
@@ -47,36 +49,122 @@ The strategies for **multi-shot decentralization** were partially inspired by ::
 
 Currently only Lloyd's Algorithm and Gradient Descent converge correctly. The Gaussian Mixture still requires work w.r.t computing the global Multivariate Standard Deviations in particular. 
 
-Running The Implementation
+Single-Shot Decentralized LLoyd
+_________________
+
+*Algorithm Flow*  ::
+
+    1: On each site, initialize Random Centroids
+    2: On each site, compute a clustering C with k-many clusters
+    3: On each site, compute a local mean for each cluster in C
+    4: On each site, recompute centroids as equal to local means
+    5: On each site,
+        if change in centroids below some epsilon, STOP, report STOPPED
+        else GOTO step 3
+    6: On each site, broadcast local centroids to aggregator
+    7: On the aggregator, compute merging of clusters according to
+        least merging error (e.g. smallest distance betweeen centroids)
+    8: Broadcast merged centroids to all sites
+
+Multi-Shot Decentralized LLoyd
+_________________
+
+*Algorithm Flow* ::
+
+    1: On the aggregator, initialize random Centroids
+        (either entirely remotely computed or shared between local sites)
+    2: Broadcast Centroids to all Sites
+    3: On each site, compute a clustering C with k-many clusters
+    4: On each site, compute a local mean for each cluster in C
+    5: On each site, broadcast local mean to the aggregator
+    6: On the aggregator, compute the global means for each Cluster
+    7: On the aggregator, recompute centroids as equal to global means
+    8: On the aggregator,
+        if change in centroids below some epsilon, broadcast STOP
+        else broadcast new centroids, GOTO step 3
+
+Single-Shot Decentralized Gradient Descent
+_________________
+
+*Algorithm Flow* ::
+
+    1: On each site, initialize Random Centroids
+    2: On each site, compute a clustering C with k-many clusters
+    3: On each site, compute a local gradient for each cluster in C
+    4: On each site, update centroids via gradient descent
+    5: On each site,
+        if change in centroids below some epsilon, STOP, report STOPPED
+        else GOTO step 3
+    6: On each site, broadcast local centroids to aggregator
+    7: On the aggregator, compute merging of clusters according to
+        least merging error (e.g. smallest distance betweeen centroids)
+    8: Broadcast merged centroids to all sites
+
+
+Multi-Shot Decentralized Gradient Descent
+_________________
+
+*Algorithm Flow* ::
+
+    1: On the aggregator, initialize random Centroids 
+        (either entirely remotely computed or shared between local sites)
+    2: Broadcast Centroids to all Sites
+    3: On each site, compute a clustering C with k-many clusters
+    4: On each site, compute a local gradient for each cluster in C
+    5: On each site, broadcast local gradient to the aggregator
+    6: On the aggregator, compute the global gradients for each Cluster
+    7: On the aggregator, update centroids according to gradient descent
+    8: On the aggregator,
+        if change in centroids below some epsilon, broadcast STOP
+        else broadcast new centroids, GOTO step 3
+
+Multi-Shot Gaussian Mixture Model with Expectation Maximization
+___________________
+
+*Algorithm Flow* ::
+
+    1: On the aggregator, initialize random normal distributions, Theta
+    2: Broadcast Theta to all sites
+    3: all sites, compute weights for each cluster according to local data
+    4: all sites, compute partial Nk 
+    5: all sites, broadcast partial Nk and weights to aggregator
+    6: Aggregator, compute mu for each cluster k, broadcast to sites
+    7: All sites, compute partial sigma_k pass to aggregator
+    8: Aggregator, compute sigma_k, broadcast to all sites
+    9: All sites, locally compute partial log-likelihood
+    10: Aggregator check change in log-likelihood
+            if below epsilon, broadcast STOP
+            else GOTO 3
+
+
+Running the Implementation
 ---------------
-See the README in the pycode folder for more information about running the scripts.
 
-Results/Visualizations
----------------
-Look at the ipython notebook for the latest figures measuring silhouette scores of the different implementations
-Other raw results have been stored in the results folder, as numpy files containing the following variables ::
+The dkmeans filenames are formatted as follows ::
+  dkmeans_\<DECENTRALIZATION\>_\<OPTIMIZATION\>.py
 
-  w - the K computed centroids
-  C - the cluster labels for every instance in the data set
-  X - the training data set, which has been shuffled according to the random distrubtion over nodes
-  delta - the record of the changes in the centroids over each iteration
-  iter - the total number of iterations
-  name - the name of the model
+And can be run either individually, by importing the script, and running the main function
 
-TODO
------------------
+  >>> import dkmeans_ss_lloyd as ss_lloyd
+  >>> import nump as np
+  >>> X = np.random(100, 2)
+  >>> ss_lloyd.main(X, 2, ep=0.001)
+
+or can be run in the experiments script, dkmeans_experiments.py
+
+  >>> import dkmeans_experiments as exp
+  >>> exp.main()
+
+Experiments
+_______________
+
+The dkmeans_experiments.py file currently runs the following experiments::
   
-1. Finish the decentralized Gaussian Mixture Model with Expectation Maximization
-2. Fix the initialization of the different algorithms so it aligns with Kmeans++::
-    
-    Arthur, David, and Sergei Vassilvitskii.
-    "k-means++: The advantages of careful seeding."
-    Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms.
-    Society for Industrial and Applied Mathematics, 2007.
-3. Add additional Metrics for evaluation:
-
-  Rand, William M.
-  "Objective criteria for the evaluation of clustering methods."
-  Journal of the American Statistical association 66.336 (1971): 846-850.
-
-4. Add more experiments to test the behavior of the different algorithms
+  1. Test all methods on gaussian data with known number of clusters.
+  2. Test all methods on gaussian data, iris data set, simulated fMRI, and real fMRI,
+      increasing the number of clusters, keeping the number of samples constant
+  3. Test all methods with best guess number of clusters, increasing the number
+      of samples in the data **TODO**
+  4.  Test fMRI data with increasing number of subjects **TODO**
+  5.  Test variations in the subject/sites distrubtions **TODO**
+  6.  Test drop-out behavior, when one or multiple nodes drop out during an iteration **TODO**
