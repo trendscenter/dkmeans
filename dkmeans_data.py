@@ -1,16 +1,36 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Oct 26 11:07:30 2017
-
 Data loading utiliy functions
-
-@author: bbaker
 """
 import scipy.io as sio
 import numpy as np
 
+DEFAULT_DATASET = "gaussian"
+DEFAULT_THETA = [[0, 1]]
+DEFAULT_WINDOW = 50
+DEFAULT_M, DEFAULT_N = (1, 2)
 
+
+def get_dataset(N, dataset=DEFAULT_DATASET, theta=DEFAULT_DATASET,
+                dfnc_window=DEFAULT_WINDOW, m=DEFAULT_M, n=DEFAULT_N):
+    """Convenience function for getting data sets by name
+        TODO: Should this be moved to the load data functions? (yes)
+    """
+    X = None
+    if dataset == 'gaussian':
+        # TODO!: This line is horrible and hacky, and needs to be fixed
+        X = list(itertools.chain.from_iterable([
+                            simulated_gaussian_cluster(int(N/len(theta)), t[0],
+                                              t[1], m=m, n=n) for t in theta]))
+    elif dataset == 'iris':
+        X = datasets.load_iris().data[0:N]
+    elif dataset == 'simulated_fmri':
+        X = window_all_tc(load_sim_tcs(), dfnc_window, n=N),
+    elif dataset == 'real_fmri':
+        X = window_all_tc(load_real_tcs(), dfnc_window, n=N)
+    return np.array(X)
+
+""" DFNC Data Functions"""
 def load_sim_tcs():
     """ Load simulated timecourses after djICA preprocessing """
     TCDir = ("/export/mialab/users/bbaker/projects/djica/tests3"

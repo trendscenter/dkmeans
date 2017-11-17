@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Compute Single-Shot K-Means with Gradient Descent
 

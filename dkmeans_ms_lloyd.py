@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Compute Multi-Shot K-Means with LLoyd's algorithm
 

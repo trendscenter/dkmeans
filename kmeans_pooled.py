@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Oct 27 14:19:54 2017
-
-@author: bbaker
 
 Perform pooled k-means clustering using the sklearn library
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 TODO: Fix this - it is currently broken
 
