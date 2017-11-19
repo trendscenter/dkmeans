@@ -118,7 +118,7 @@ _________________
         if change in centroids below some epsilon, broadcast STOP
         else broadcast new centroids, GOTO step 3
 
-Multi-Shot Gaussian Mixture Model with Expectation Maximization
+Multi-Shot Gaussian Mixture Model with Expectation Maximization (currently broken)
 ___________________
 
 *Algorithm Flow* ::
@@ -143,12 +143,13 @@ Running the Implementation
 The dkmeans filenames are formatted as follows ::
   dkmeans_\<DECENTRALIZATION\>_\<OPTIMIZATION\>.py
 
-And can be run either individually, by importing the script, and running the main function
+And can be run either individually, by importing the script, and running the main function.
+The optimization strategy can be specified via the optimization keyword.
 
-  >>> import dkmeans_ss_lloyd as ss_lloyd
+  >>> import dkmeans_singleshot as ss
   >>> import nump as np
   >>> X = np.random(100, 2)
-  >>> ss_lloyd.main(X, 2, ep=0.001)
+  >>> ss.main(X, 2, optimization='lloyd', ep=0.001)
 
 or can be run in the experiments script, dkmeans_experiments.py
 
