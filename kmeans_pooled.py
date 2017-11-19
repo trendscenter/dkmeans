@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-def main(X, k, s, steps=np.Inf):
+def main(X, k, steps=np.Inf, s=0, verbose=False):
     try:
         [m, n] = X[0].shape
     except ValueError:
@@ -18,8 +18,8 @@ def main(X, k, s, steps=np.Inf):
     w = kmeans_model.cluster_centers_
     labels = kmeans_model.labels_
     w = [r.reshape([m, n]) for r in list(w)]
-    return {'w': w, 'C': labels, 'X': X, 'iter': kmeans_model.n_iter_,
-            'name': 'pooled'}
+    return {'centroids': w, 'cluster_labels': labels, 'X': X,
+            'num_iter': kmeans_model.n_iter_, 'name': 'pooled'}
 
 
 if __name__ == '__main__':

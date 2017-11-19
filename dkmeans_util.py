@@ -1,33 +1,25 @@
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-dkmeans utility functions, not specifically related to clustering
-or other activities
+Utility functions
 """
 
-import numpy as np
+def split_chunks(l, n):
+    """
+    Yield successive n-sized chunks from list l.
+    https://stackoverflow.com/questions/312443/
+                how-do-you-split-a-list-into-evenly-sized-chunks
+    """
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
 
-def simulated_gaussian_cluster(N, mu, sigsqr, m, n):
-    x = []
-    for i in range(N):
-        x += [sigsqr * np.random.randn(m, n).flatten() + mu]
-    return x
+def anti_transpose(a):
+    """
+        Tranpose a matrix on the anti-diagonal
+        https://stackoverflow.com/questions/44772451/
+            what-is-the-best-way-to-perform-an-anti-transpose-in-python
 
-
-def random_split_over_nodes(X, s):
-    f = int(np.floor(len(X) / s))
-    indices = np.random.choice(len(X), size=[s, f])
-    D = []
-    for index in indices:
-        d = []
-        for i in index:
-            # print(i)
-            d += [X[i]]
-        D += [d]
-    r = int(np.ceil(len(X) / s)) - f
-    for index in range(r-1, -1, -1):
-        D[-1] += [X[-index]]
-    findices = [item for sublist in indices for item in sublist]
-    return D, findices
-
-
+        This method performs almost twice as fast as when using np transforms
+    """
+    return a[::-1, ::-1].T
