@@ -141,10 +141,10 @@ Running the Implementation
 ---------------
 
 The dkmeans filenames are formatted as follows ::
-  dkmeans_\<DECENTRALIZATION\>_\<OPTIMIZATION\>.py
+  dkmeans_\<DECENTRALIZATION STRATEGY\>.py
 
-And can be run either individually, by importing the script, and running the main function.
-The optimization strategy can be specified via the optimization keyword.
+And can be run either individually for a given choice of optimization,
+by importing the script, and running the main function.
 
   >>> import dkmeans_singleshot as ss
   >>> import nump as np
