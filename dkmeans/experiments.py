@@ -11,12 +11,12 @@ from sklearn import metrics
 from time import time
 
 
-from dkmeans_data import get_dataset
-from dkmeans_data import DEFAULT_DATASET, DEFAULT_THETA, DEFAULT_WINDOW
-from dkmeans_data import DEFAULT_M, DEFAULT_N
-import dkmeans_singleshot as dkss
-import dkmeans_multishot as dkms
-import kmeans_pooled as kp
+from dkmeans.data import get_dataset
+from dkmeans.data import DEFAULT_DATASET, DEFAULT_THETA, DEFAULT_WINDOW
+from dkmeans.data import DEFAULT_M, DEFAULT_N
+import dkmeans.singleshot as dkss
+import dkmeans.multishot as dkms
+import dkmeans.kmeans_pooled as kp
 
 
 METHODS = {'pooled': (kp.main, {}),

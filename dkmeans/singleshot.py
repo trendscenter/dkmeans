@@ -20,15 +20,9 @@ Algorithm Flow -
     8: Broadcast merged centroids to all sites
 """
 
-from dkmeans_local_computations import dkm_local_initialize_own_centroids
-from dkmeans_local_computations import dkm_local_compute_clustering
-from dkmeans_local_computations import dkm_local_compute_mean
-from dkmeans_local_computations import dkm_local_mean_step
-from dkmeans_local_computations import dkm_local_compute_gradient
-from dkmeans_local_computations import dkm_local_gradient_step
-from dkmeans_local_computations import dkm_local_check_stopping
-from dkmeans_remote_computations import dkm_remote_aggregate_clusters
-from dkmeans_data import get_data_dims, split_over_nodes, get_dataset
+import dkmeans.local_computations as local
+import dkmeans.remote_computations as remote
+from dkmeans.data import get_data_dims, split_over_nodes, get_dataset
 
 
 def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
@@ -47,7 +41,7 @@ def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
     not_converged = True
 
     # Have each site compute k initial clusters locally
-    local_centroids = [dkm_local_initialize_own_centroids(node, k)
+    local_centroids = [local.initialize_own_centroids(node, k)
                        for node in nodes]
 
     # Local Optimization Loop
@@ -58,25 +52,25 @@ def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
         for i, node in enumerate(nodes):
             # Each local site computes its cluster
             cluster_labels[i] = \
-                         dkm_local_compute_clustering(node, local_centroids[i])
+                         local.compute_clustering(node, local_centroids[i])
             if optimization == 'lloyd':
                 # Computes its local mean if doing lloyd, and updates centroids
-                local_means = dkm_local_compute_mean(node,
+                local_means = local.compute_mean(node,
                                                      cluster_labels[i], k)
                 [local_centroids[i], previous_centroids] = \
-                    dkm_local_mean_step(local_means,
+                    local.mean_step(local_means,
                                         local_centroids[i])
             elif optimization == 'gradient':
                 # Computes the local gradient if doing GD, and takes a GD step
-                local_grad = dkm_local_compute_gradient(node,
+                local_grad = local.compute_gradient(node,
                                                         cluster_labels[i],
                                                         local_centroids[i],
                                                         lr)
                 [local_centroids[i], previous_centroids] = \
-                    dkm_local_gradient_step(local_grad, local_centroids[i])
+                    local.gradient_step(local_grad, local_centroids[i])
             # Check local stopping conditions
             local_stop[i], local_delta[i] = \
-                dkm_local_check_stopping(local_centroids[i],
+                local.check_stopping(local_centroids[i],
                                          previous_centroids, epsilon)
         num_iter += 1
         tracked_delta.append(local_delta)
@@ -90,10 +84,10 @@ def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
         not_converged = any(local_stop)
 
     # Aggregate clusters remotely
-    remote_centroids = dkm_remote_aggregate_clusters(local_centroids)
+    remote_centroids = remote.aggregate_clusters(local_centroids)
     # And compute the final global clustering
     cluster_labels = [clusters for node in nodes for clusters in
-                      dkm_local_compute_clustering(node, remote_centroids)]
+                      local.compute_clustering(node, remote_centroids)]
     return {'centroids': remote_centroids, 'cluster_labels': cluster_labels,
             'X': X, 'delta': tracked_delta, 'iter': num_iter,
             'name': 'singleshot_%s' % optimization}
