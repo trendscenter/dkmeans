@@ -10,7 +10,7 @@ from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 
 
-def dkm_remote_closest_centroids(local_centroids):
+def closest_centroids(local_centroids):
     """
         Match local_centroids to neighbors with a **greedy** strategy,
         iteratively picking the next smallest merging distance
@@ -50,7 +50,7 @@ def dkm_remote_closest_centroids(local_centroids):
     return(unions)
 
 
-def dkm_remote_aggregate_clusters(local_centroids):
+def aggregate_clusters(local_centroids):
     """
         Cluster merging using closest centroid computations
 
@@ -58,12 +58,12 @@ def dkm_remote_aggregate_clusters(local_centroids):
                          a 2d list of s sites with k many m x n local_centroids
 
         Output: a list of updated centroids, the mid-point between the matching
-                centroids, returned from dkm_remote_closest_centroids.
+                centroids, returned from closest_centroids.
                 Supposing s*k many centroids initially, floor(s*k/2) centroids
                 will be output, with an additional centroid if s and k are
                 both odd
     """
-    closest_indices = dkm_remote_closest_centroids(local_centroids)
+    closest_indices = closest_centroids(local_centroids)
     local_centroids = [cent for sitecents in local_centroids
                        for cent in sitecents]
     return [np.sum([local_centroids[mincoords[0]],
@@ -71,5 +71,5 @@ def dkm_remote_aggregate_clusters(local_centroids):
             for mincoords in closest_indices]
 
 
-def dkm_remote_aggregate_sum(local_objects):
+def aggregate_sum(local_objects):
     return list(np.sum(local_objects, 0))

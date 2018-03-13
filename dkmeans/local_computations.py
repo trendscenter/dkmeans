@@ -15,7 +15,7 @@ from scipy.spatial.distance import cdist
 from dkmeans.data import get_data_dims
 
 
-def dkm_local_compute_mean(local_X, local_cluster_labels, k):
+def compute_mean(local_X, local_cluster_labels, k):
     """
         Compute the local mean, which is broadcast back to the aggregator
 
@@ -34,7 +34,7 @@ def dkm_local_compute_mean(local_X, local_cluster_labels, k):
     return [np.mean(lmean, 0) if lmean else npinf for lmean in local_means]
 
 
-def dkm_local_mean_step(local_means, local_centroids):
+def mean_step(local_means, local_centroids):
     """
         Update centroids according to local clustering
 
@@ -47,7 +47,7 @@ def dkm_local_mean_step(local_means, local_centroids):
     return local_centroids, previous_centroids
 
 
-def dkm_local_gradient_step(local_gradients, local_centroids):
+def gradient_step(local_gradients, local_centroids):
     """
         Gradient descent update on local site
 
@@ -61,7 +61,7 @@ def dkm_local_gradient_step(local_gradients, local_centroids):
     return local_centroids, previous
 
 
-def dkm_local_initialize_own_centroids(local_X, k):
+def initialize_own_centroids(local_X, k):
     """
         Random choice of k centroids from own data
 
@@ -72,7 +72,7 @@ def dkm_local_initialize_own_centroids(local_X, k):
     return [local_X[i] for i in np.random.choice(len(local_X), k)]
 
 
-def dkm_local_check_stopping(local_centroids, previous_centroids, epsilon):
+def check_stopping(local_centroids, previous_centroids, epsilon):
     """
         Check if centroids have changed beyond some epsilon tolerance
 
@@ -91,7 +91,7 @@ def dkm_local_check_stopping(local_centroids, previous_centroids, epsilon):
     return delta > epsilon, delta
 
 
-def dkm_local_compute_clustering(local_X, local_centroids):
+def compute_clustering(local_X, local_centroids):
     """
         Compute local clustering by associating each data instance with the
         nearest centroid
@@ -114,8 +114,7 @@ def dkm_local_compute_clustering(local_X, local_centroids):
     return cluster_labels
 
 
-def dkm_local_compute_gradient(local_X, local_cluster_labels,
-                               local_centroids, lr):
+def compute_gradient(local_X, local_cluster_labels, local_centroids, lr):
     """
         Compute local gradient
         Input:  local_X, local_cluster_labels, local_centroids as above
