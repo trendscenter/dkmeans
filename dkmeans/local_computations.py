@@ -12,7 +12,7 @@ Common Input Specifications:
 """
 import numpy as np
 from scipy.spatial.distance import cdist
-from dkmeans_data import get_data_dims
+from dkmeans.data import get_data_dims
 
 
 def dkm_local_compute_mean(local_X, local_cluster_labels, k):

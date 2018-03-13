@@ -8,7 +8,7 @@ import itertools
 
 
 from sklearn import datasets
-from dkmeans_util import split_chunks
+from dkmeans.util import split_chunks
 
 DEFAULT_DATASET = "gaussian"
 DEFAULT_THETA = [[0, 1]]

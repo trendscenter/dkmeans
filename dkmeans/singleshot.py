@@ -20,15 +20,15 @@ Algorithm Flow -
     8: Broadcast merged centroids to all sites
 """
 
-from dkmeans_local_computations import dkm_local_initialize_own_centroids
-from dkmeans_local_computations import dkm_local_compute_clustering
-from dkmeans_local_computations import dkm_local_compute_mean
-from dkmeans_local_computations import dkm_local_mean_step
-from dkmeans_local_computations import dkm_local_compute_gradient
-from dkmeans_local_computations import dkm_local_gradient_step
-from dkmeans_local_computations import dkm_local_check_stopping
-from dkmeans_remote_computations import dkm_remote_aggregate_clusters
-from dkmeans_data import get_data_dims, split_over_nodes, get_dataset
+from dkmeans.local_computations import dkm_local_initialize_own_centroids
+from dkmeans.local_computations import dkm_local_compute_clustering
+from dkmeans.local_computations import dkm_local_compute_mean
+from dkmeans.local_computations import dkm_local_mean_step
+from dkmeans.local_computations import dkm_local_compute_gradient
+from dkmeans.local_computations import dkm_local_gradient_step
+from dkmeans.local_computations import dkm_local_check_stopping
+from dkmeans.remote_computations import dkm_remote_aggregate_clusters
+from dkmeans.data import get_data_dims, split_over_nodes, get_dataset
 
 
 def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,

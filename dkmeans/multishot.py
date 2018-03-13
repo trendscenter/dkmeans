@@ -25,15 +25,15 @@ Algorithm Flow -
 import numpy as np
 
 
-from dkmeans_local_computations import dkm_local_initialize_own_centroids
-from dkmeans_local_computations import dkm_local_compute_clustering
-from dkmeans_local_computations import dkm_local_compute_mean
-from dkmeans_local_computations import dkm_local_compute_gradient
-from dkmeans_local_computations import dkm_local_check_stopping
-from dkmeans_local_computations import dkm_local_gradient_step
-from dkmeans_local_computations import dkm_local_mean_step
-from dkmeans_remote_computations import dkm_remote_aggregate_sum
-from dkmeans_data import split_over_nodes, get_dataset, get_data_dims
+from dkmeans.local_computations import dkm_local_initialize_own_centroids
+from dkmeans.local_computations import dkm_local_compute_clustering
+from dkmeans.local_computations import dkm_local_compute_mean
+from dkmeans.local_computations import dkm_local_compute_gradient
+from dkmeans.local_computations import dkm_local_check_stopping
+from dkmeans.local_computations import dkm_local_gradient_step
+from dkmeans.local_computations import dkm_local_mean_step
+from dkmeans.remote_computations import dkm_remote_aggregate_sum
+from dkmeans.data import split_over_nodes, get_dataset, get_data_dims
 
 
 def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,

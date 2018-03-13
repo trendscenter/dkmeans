@@ -20,7 +20,7 @@ Algorithm Flow -
 """
 
 import numpy as np
-from dkmeans_util import random_split_over_nodes
+from dkmeans.util import random_split_over_nodes
 
 
 def dgmm_ms_em_remote_gaussian_centroids(N,k):
@@ -39,7 +39,7 @@ def dgmm_ms_em_local_gaussian(remote_mu_k, remote_sigma_k, local_x, k):
         num = np.exp((-1/2)*np.dot(diff.T,np.linalg.inv(remote_sigma_k[i])).dot(diff))
         denom = 2*np.pi*np.power(np.linalg.det(remote_sigma_k[i]),1/2)
         pk[i] = num/denom
-        print(pk[i])     
+        print(pk[i])
     return pk
 
 
