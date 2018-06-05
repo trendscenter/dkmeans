@@ -7,7 +7,12 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-def main(X, k, steps=np.Inf, s=0, verbose=False):
+DEFAULT_steps = np.Inf
+DEFAULT_sites = 0
+DEFAULT_verbose = False
+
+
+def main(X, k, steps=DEFAULT_steps, s=DEFAULT_sites, verbose=DEFAULT_verbose):
     try:
         [m, n] = X[0].shape
     except ValueError:

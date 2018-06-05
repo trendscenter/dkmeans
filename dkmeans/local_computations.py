@@ -25,26 +25,13 @@ def compute_mean(local_X, local_cluster_labels, k):
     """
     m, n = get_data_dims(local_X)
     npinf = np.zeros([m, n])
-    local_means = [[] for i in range(k)]
-    for i in range(len(local_cluster_labels)):
-        local_means[local_cluster_labels[i]] += [local_X[i]]
+    local_means = [[]]*k
+    for label, x in zip(local_cluster_labels, local_X):
+        local_means[label] += [x]
 
     #  Return the origin if no clusters have been assigned to cluster k
     #  !!! is this the way to handle this?
     return [np.mean(lmean, 0) if lmean else npinf for lmean in local_means]
-
-
-def mean_step(local_means, local_centroids):
-    """
-        Update centroids according to local clustering
-
-        Input: local_means - list of k many local means
-
-        Output: updated local centroids, previous centroids from last iteration
-    """
-    previous_centroids = local_centroids[:]
-    local_centroids = [local_mean for local_mean in local_means]
-    return local_centroids, previous_centroids
 
 
 def gradient_step(local_gradients, local_centroids):
@@ -102,7 +89,6 @@ def compute_clustering(local_X, local_centroids):
                                     the labels for each instance
     """
     cluster_labels = []
-    cluster_centroids = []
     m, n = get_data_dims(local_X)
     X_flat = [np.matrix(x.reshape(1, m*n)) for x in local_X]
     w_flat = [np.matrix(w.reshape(1, m*n)) for w in local_centroids]
@@ -110,7 +96,6 @@ def compute_clustering(local_X, local_centroids):
         distances = [cdist(x, w) for w in w_flat]
         min_index = distances.index(np.min(distances))
         cluster_labels.append(min_index)
-        cluster_centroids.append(local_centroids[min_index])
     return cluster_labels
 
 

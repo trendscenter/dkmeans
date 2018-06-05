@@ -4,6 +4,7 @@
 Utility functions
 """
 
+
 def split_chunks(l, n):
     """
     Yield successive n-sized chunks from list l.

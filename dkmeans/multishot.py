@@ -23,15 +23,28 @@ Algorithm Flow -
 """
 
 import numpy as np
-
+import logging
 
 import dkmeans.local_computations as local
 import dkmeans.remote_computations as remote
 from dkmeans.data import split_over_nodes, get_dataset, get_data_dims
 
 
-def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
-         lr=0.001, verbose=True):
+DEFAULT_optimization = 'lloyd'
+DEFAULT_s = 2
+DEFAULT_epsilon = 0.00001
+DEFAULT_shuffle = True
+DEFAULT_lr = 0.001
+DEFAULT_verbose = True
+
+
+logger = logging.getLogger('dkmeans')
+logger.setLevel(logging.INFO)
+
+
+def main(X, k, optimization=DEFAULT_optimization, s=DEFAULT_s,
+         epsilon=DEFAULT_epsilon, shuffle=DEFAULT_shuffle, lr=DEFAULT_lr,
+         verbose=DEFAULT_verbose):
     m, n = get_data_dims(X)
     nodes, inds = split_over_nodes(X, s, shuffle=shuffle)
     X = [X[i] for i in inds]  # Reshuffle x to match the random
@@ -59,13 +72,13 @@ def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
             if optimization == 'lloyd':
                 # Lloyd has sites compute means locally
                 local_optimizer[i] = local.compute_mean(node,
-                                                            cluster_labels[i],
-                                                            k)
+                                                        cluster_labels[i],
+                                                        k)
             elif optimization == 'gradient':
                 # Gradient descent has sites compute gradients locally
                 local_optimizer[i] = \
                     local.compute_gradient(node, cluster_labels[i],
-                                               remote_centroids, lr)
+                                           remote_centroids, lr)
         # End of Local Computations
 
         # Both objects can be aggregated by taking a sum
@@ -75,9 +88,9 @@ def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
             remote_optimizer = [r / s for r in remote_optimizer]
 
             # Then, update centroids as corresponding to the local mean
-            [remote_centroids, previous] = \
-                local.mean_step(remote_optimizer,
-                                    remote_centroids)
+            previous = remote_centroids[:]
+            remote_centroids = remote_optimizer[:]
+
         elif optimization == 'gradient':
             # Then, update centroids according to one step of gradient descent
             [remote_centroids, previous] = \
@@ -86,10 +99,10 @@ def main(X, k, optimization='lloyd', s=2, epsilon=0.00001, shuffle=True,
         # Check the stopping condition "locally" at the aggregator
         # - returns false if converged
         remote_check, delta = local.check_stopping(remote_centroids,
-                                                       previous, epsilon)
+                                                   previous, epsilon)
         if verbose:
-            print("Multi-Shot %s ; iter : %d delta : %f"
-                  % (optimization, num_iter, delta))
+            logger.info("Multi-Shot %s ; iter : %d delta : %f"
+                        % (optimization, num_iter, delta))
         not_converged = remote_check
         tracked_delta.append(delta)
         num_iter += 1

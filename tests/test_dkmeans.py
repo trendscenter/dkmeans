@@ -1,25 +1,22 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Fri Nov 17 19:52:34 2017
-
-@author: bbradt
+Unit testing for the dkmeans repository
 """
 
 import numpy as np
 import dkmeans.remote_computations as remote
-import dkmeans.local_computations as local
 
 
-DEFAULT_PARAMS = (2,   # m
-                  2,   # n
-                  2,   # k
-                  3,   # s
-                  11,  # N
-                  )
+DEFAULT_m = 2
+DEFAULT_n = 2
+DEFAULT_k = 2
+DEFAULT_s = 3
+DEFAULT_N = 11
 
 
 def _k_cluster_labels(N, k):
+    '''utility function - arbitrarily fill an N-len array with k labels'''
     C = []
     for ki in range(k):
         C.extend([ki for i in range(int(N/k))])
@@ -29,13 +26,22 @@ def _k_cluster_labels(N, k):
 
 
 def test_remote_aggregate_clusters():
-    m, n, k, s, _ = DEFAULT_PARAMS
+    '''
+        Tests the remote aggregation of clusters by merging clusters of closest
+        distance.
+    '''
+    m, n, k, s = DEFAULT_m, DEFAULT_n, DEFAULT_k, DEFAULT_s
     centroids = [[np.ones([m, n]) for ki in range(k)] for si in range(s)]
     expected = [np.ones([m, n]) for ki in range(k)]
     actual = remote.aggregate_clusters(centroids)
     assert all([np.array_equal(a, e) for a, e in zip(expected, actual)])
 
+
 def test_remote_aggregate_sum():
+    '''
+        Test the remote aggregate_sum function by summing two numerical arrays
+        distributed at different sites.
+    '''
     objects = [[np.array([0]), np.array([1])],
                [np.array([1]), np.array([0])]
                ]
@@ -43,8 +49,14 @@ def test_remote_aggregate_sum():
     actual = remote.aggregate_sum(objects)
     np.testing.assert_array_equal(expected, actual)
 
+
 def test_remote_closest_centroids():
-    m, n, k, s, _ = DEFAULT_PARAMS
+    '''
+        Test the closest_centroid function by generating matrices of ones
+        on each site. The generated array should return a tuple where each
+        index is associated with the subsequent index.
+    '''
+    m, n, k, s = DEFAULT_m, DEFAULT_n, DEFAULT_k, DEFAULT_s
     centroids = [[np.ones([m, n])
                  for ki in range(k)] for si in range(s)]
     actual = remote.closest_centroids(centroids)
@@ -55,6 +67,7 @@ def test_remote_closest_centroids():
 
 
 """
+TODO: finish unit testing
 def test_local_compute_mean():
     m, n, k, s, N = DEFAULT_PARAMS
     X = [np.ones([m, n]) for Ni in range(N)]
