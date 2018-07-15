@@ -1,0 +1,80 @@
+COMPUTATION DESIGN - multishot
+
+local file:
+'./.coinstac_tmp/<phase_name>_output.json'
+
+0 - LOCAL & REMOTE:
+    create temporary directory
+    check input
+
+1 - REMOTE: initialize parameters
+    KEPT ON REMOTE
+    s - number of sites in consortium
+    strategy -
+    optimization - ''
+    epsilon - tolerance
+    converged - has converged?
+    lr - learning rate
+    verbose - true
+    WRITE TO FILE {'number_sites': int, 'epsilon': float, 'lr': float, 'verbose': bool,
+                   'optimization': str, 'strategy':str, 'converged': bool,
+                   'initial_time': float}
+
+    SENT TO LOCAL
+    k - number of centroids
+    shuffle - each site shuffle its data
+    WRITE TO STDOUT {'k': int, 'shuffle', bool}
+
+
+2 - LOCAL: initialize centroids
+    SENT TO REMOTE
+    local_centroids - initialized centroids
+    WRITE TO STDOUT {'local_centroids': list}
+
+
+3 - REMOTE: initialize centroids
+    SENT TO LOCAL
+    remote_centroids - initialized centroids
+    WRITE TO STDOUT {'remote_centroids': list}
+
+
+4 - LOCAL: compute clustering assignment
+    KEPT ON LOCAL
+    local_cluster_labels - clustering assignment
+    WRITE TO FILE {'local_cluster_labels': list}
+
+
+5 - LOCAL: compute optimizer
+    SENT TO REMOTE
+    local_optimizer - either mean or gradient
+
+
+6 - REMOTE: aggregate optimizer
+    KEPT ON REMOTE
+    remote_optimizer -
+    WRITE TO FILE {'local_optimizers': list}
+
+
+7 - REMOTE: optimization step
+    SENT TO LOCAL
+    remote_centroids -
+    WRITE TO STDOUT {'remote_centroids':list, 'previous_centroids': list}
+
+
+8 - LOCAL: compute clustering assignment
+    KEPT ON LOCAL
+    local_cluster_labels -
+    WRITE TO FILE {'local_cluster_labels': list}
+
+
+9 - REMOTE: check convergence
+    CONVERGED -> GOTO 9
+    NOT CONVERGED -> GOTO 5
+    WRITE TO FILE {'delta': delta}
+
+10 - REMOTE: aggregate output
+
+
+--FINAL OUTPUT--
+REMOTE: {'centroids': list, 'delta': list, 'num_iter': int, 'runtime': float}
+LOCAL: {'clustering': list}
