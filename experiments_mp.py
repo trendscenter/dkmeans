@@ -23,12 +23,12 @@ from multiprocessing import Process, Queue
 
 
 METHODS = {
-           #'pooled': (kp.main, {}),
-            #'singleshot_lloyd': (dkss.main, {'optimization': 'lloyd'}),
-            #'singleshot_gradient': (dkss.main, {'optimization': 'gradient'}),
-           'multishot_lloyd': (dkms.main, {'optimization': 'lloyd'}),
-            #'multishot_gradient': (dkms.main, {'optimization': 'gradient'}),
-           }  # STORES the method mains and the kwarg for the corresponding opt
+    # 'pooled': (kp.main, {}),
+    # 'singleshot_lloyd': (dkss.main, {'optimization': 'lloyd'}),
+    # 'singleshot_gradient': (dkss.main, {'optimization': 'gradient'}),
+    'multishot_lloyd': (dkms.main, {'optimization': 'lloyd'}),
+    # 'multishot_gradient': (dkms.main, {'optimization': 'gradient'}),
+}  # STORES the method mains and the kwarg for the corresponding opt
 METHOD_NAMES = METHODS.keys()
 METRICS = {'silhouette': metrics.silhouette_score,
            }
@@ -82,11 +82,11 @@ def run_experiment(k, N, dataset=DEFAULT_DATASET, theta=DEFAULT_THETA,
     """
     subjects = None
     X, subjects = get_dataset(N, dataset=dataset, theta=theta,
-                    dfnc_window=dfnc_window, m=m, n=n)
+                              dfnc_window=dfnc_window, m=m, n=n)
     res = {method: run_method(X, k, subjects=subjects, method=method, **kwargs)
            for method in methods}
     measures = {res[r]['name']: {metric: evaluate_metric(res[r]['X'],
-                                 res[r]['cluster_labels'], metric)
+                                                         res[r]['cluster_labels'], metric)
                                  for metric in metrics} for r in res}
     return measures, res
 
@@ -112,11 +112,12 @@ def run_repeated_experiment(R, k, N, metrics=METRIC_NAMES,
     for i, pq in enumerate(zip(processes, queues)):
         p, q = pq
         meas, res = q.get()
+        #meas, res = one_run_exp(None, k, N, metrics, methods, **kwargs)
         p.join()
         for method in methods:
             results[method] += [res[method]]
             for metric in metrics:
-                measures[method][metric] += [meas[method][metric]] 
+                measures[method][metric] += [meas[method][metric]]
     return measures, results
 
 
@@ -124,46 +125,52 @@ def one_run_exp(q, k, N, metrics, methods, **kwargs):
     np.random.seed(seed=int(str(os.getpid())))
     meas, res = run_experiment(k, N, metrics=metrics, methods=methods,
                                **kwargs)
-    q.put([meas, res])
+    if q is not None:
+        q.put([meas, res])
+    return meas, res
     # print("Done with experiment k=%d, N=%d in process %s" %
     #      (k, N, os.getpid()))
 
 
-def dfnc_pipe(k, N, R, s=2):
+def dfnc_pipe(k, N, R, s=2, rep=100):
     print("Running dFNC exemplars k=%d, R=%d, N=%d, s=%d in process %s" %
-          (k, R, N, s, os.getpid()))
+          (k, rep, N, s, os.getpid()))
 
-    meas, res = run_repeated_experiment(R*1, k, N,
+    meas, res = run_repeated_experiment(rep, k, N,
                                         dataset='real_fmri_exemplar',
                                         s=s,
                                         verbose=True)
     for method in meas:
         print("saving exemplars")
-        np.save('results/exemplar_N%d_s%d_k%d_%s_meas.npy' % (N, s, k, method), meas)
-        np.save('results/exemplar_N%d_s%d_k%d_%s_res.npy' % (N, s, k, method), res)
+        np.save('results/exemplar_N%d_s%d_k%d_%s_meas.npy' %
+                (N, s, k, method), meas)
+        np.save('results/exemplar_N%d_s%d_k%d_%s_res.npy' %
+                (N, s, k, method), res)
     print("Printing Exemplar Results k=%d, R=%d, N=%d in process %s" %
-          (k, R, N, os.getpid()))
+          (k, rep, N, os.getpid()))
     for method in meas:
         for measure in meas[method]:
             print('\t%s, %s: %s' % (method, measure,
                                     np.max(meas[method][measure])))
     for method in meas:
         exemplars = choose_best_centroids('results/exemplar_N%d_s%d_k%d_%s_res.npy'
-                                      % (N, s, k, method),
-                                      'results/exemplar_N%d_s%d_k%d_%s_meas.npy'
-                                      % (N, s, k, method),
-                                      list(meas.keys()))
+                                          % (N, s, k, method),
+                                          'results/exemplar_N%d_s%d_k%d_%s_meas.npy'
+                                          % (N, s, k, method),
+                                          list(meas.keys()))
         print("Running dFNC second stage k=%d, R=%d, N=%d in process %s" %
               (k, R, N, os.getpid()))
         measR, resR = run_repeated_experiment(1, k, N,
-                                          dataset='real_fmri',
-                                          verbose=True,
-                                          s=s,
-                                          init_centroids=exemplars)
+                                              dataset='real_fmri',
+                                              verbose=True,
+                                              s=s,
+                                              init_centroids=exemplars)
         print("Saving measure results")
-        np.save('results/fbirn_N%d_s%d_k%d_%s_meas.npy' % (N, s, k, method), measR)
+        np.save('results/fbirn_N%d_s%d_k%d_%s_meas.npy' %
+                (N, s, k, method), measR)
         print("Saving results")
-        np.save('results/fbirn_N%d_s%d_k%d_%s_res.npy' % (N, s, k, method), resR)
+        np.save('results/fbirn_N%d_s%d_k%d_%s_res.npy' %
+                (N, s, k, method), resR)
     print("Printing Second Stage Results k=%d, R=%d, N=%d in process %s" %
           (k, R, N, os.getpid()))
     for method in measR:
@@ -218,12 +225,13 @@ def main():
     k_test = [5]
     s = 2
     processes = []
-    for k in k_test:
-        p = Process(target=dfnc_pipe, args=(k, N, R, s))
-        p.start()
-        processes.append(p)
-    for p in processes:
-        p.join()
+    dfnc_pipe(5, N, R, s)
+    # for k in k_test:
+    #    p = Process(target=dfnc_pipe, args=(k, N, R, s))
+    #    p.start()
+    #    processes.append(p)
+    # for p in processes:
+    #    p.join()
 
 
 if __name__ == '__main__':

@@ -92,7 +92,6 @@ def compute_clustering(local_X, local_centroids):
     """
     cluster_labels = []
     m, n = get_data_dims(local_X)
-    print("Dims of data %d, %d" % (m, n))
     X_flat = [np.matrix(x.reshape(1, m*n)) for x in local_X]
     w_flat = [np.matrix(w.reshape(1, m*n)) for w in local_centroids]
     for x in X_flat:

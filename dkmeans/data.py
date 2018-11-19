@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import matplotlib.pyplot as plt
 """
 Data loading utiliy functions
 """
@@ -18,7 +19,7 @@ DEFAULT_M, DEFAULT_N = (1, 2)
 SIMULATED_TC_DIR = ("/export/mialab/users/bbaker/projects/djica/tests3"
                     "/IOTA/SIM/22Sep2017/increase_both/"
                     "s2048-n64-nc20-r1/IC.mat")
-REAL_TC_DIR = ("/export/mialab/users/bbaker/projects/ddfnc/data/dkm_in.mat")
+REAL_TC_DIR = ("./dkm_in.mat")
 
 
 def get_dataset(N, dataset=DEFAULT_DATASET, theta=DEFAULT_THETA,
@@ -31,8 +32,8 @@ def get_dataset(N, dataset=DEFAULT_DATASET, theta=DEFAULT_THETA,
     if dataset == 'gaussian':
         # TODO!: This line is horrible and hacky, and needs to be fixed
         X = list(itertools.chain.from_iterable([
-                            simulated_gaussian_cluster(int(N/len(theta)), t[0],
-                                              t[1], m=m, n=n) for t in theta]))
+            simulated_gaussian_cluster(int(N/len(theta)), t[0],
+                                       t[1], m=m, n=n) for t in theta]))
     elif dataset == 'iris':
         X = datasets.load_iris().data[0:N]
     elif dataset == 'simulated_fmri':
@@ -85,10 +86,10 @@ def load_real_tcs():
 def subject_window_partition(all_win, shat, winsize):
     """given a vector divided by all subject windows, and a list of all subject TCs
        re-partition the vector in a subject-specific list of windows"""
-    subj_win = [(s.shape[1]- winsize + 1) for s in shat]
+    subj_win = [(s.shape[1] - winsize + 1) for s in shat]
     return np.split(all_win, np.cumsum(subj_win)-subj_win[0])
 
-import matplotlib.pyplot as plt
+
 def window_tc(TC, winsize, transpose=False, exemplar=False):
     """ Using a sliding window, find the windows with maximum variance """
     TC_w = []
@@ -107,7 +108,6 @@ def window_tc(TC, winsize, transpose=False, exemplar=False):
         end = start+winsize
     if exemplar:
         mm, LM = local_maxima(np.array(TC_v))
-        print("Found %d local maxima" % len(LM))
         TC_w = [TC_w[i] for i in LM]
     return TC_w
 
@@ -121,7 +121,8 @@ def window_all_tc(Shat_, winsize, n=0, transpose=False, exemplar=False):
     if n <= 0:
         n = len(Shat_)
     for i in range(n):  # TODO put this into a comprehension
-        w = window_tc(Shat_[i], winsize, transpose=transpose, exemplar=exemplar)
+        w = window_tc(Shat_[i], winsize,
+                      transpose=transpose, exemplar=exemplar)
         Shat_w += w
         Subject_labels += [i for wi in w]
     return(Shat_w, Subject_labels)
