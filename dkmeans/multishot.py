@@ -70,7 +70,7 @@ def main(X, k, optimization=DEFAULT_optimization, s=DEFAULT_s,
         for i, node in enumerate(nodes):
             # Each site compute local clusters
             cluster_labels[i] = \
-                        local.compute_clustering(node, remote_centroids)
+                local.compute_clustering(node, remote_centroids)
             if optimization == 'lloyd':
                 # Lloyd has sites compute means locally
                 local_optimizer[i] = local.compute_mean(node,
