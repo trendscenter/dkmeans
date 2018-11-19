@@ -26,7 +26,7 @@ def compute_mean(local_X, local_cluster_labels, k):
     m, n = get_data_dims(local_X)
     npinf = np.zeros([m, n])
     local_means = [np.zeros([m, n]) for i in range(k)]
-    local_counts = [0]*k
+    local_counts = [1]*k
     for i, label in enumerate(local_cluster_labels):
         local_means[label] += local_X[i]
         local_counts[label] += 1
