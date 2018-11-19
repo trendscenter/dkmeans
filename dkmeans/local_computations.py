@@ -33,7 +33,7 @@ def compute_mean(local_X, local_cluster_labels, k):
 
     #  Return the origin if no clusters have been assigned to cluster k
     #  !!! is this the way to handle this?
-    return [np.mean(lmean) for lmean in local_means]
+    return [lmean/lcount for lmean, lcount in zip(local_means, local_counts)]
 
 
 def gradient_step(local_gradients, local_centroids):
