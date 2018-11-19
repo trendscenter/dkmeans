@@ -147,7 +147,6 @@ def split_over_nodes(X, s, shuffle=True):
         indices = list(np.random.choice(len(X), size=[s, node_distribution]))
     else:
         indices = list(split_chunks(list(range(len(X))), node_distribution))
-    print(len(indices))
     if len(indices) > s:  # TODO: FIX BAD WORKAROUND
         tmp = [si for sub in indices[s:] for si in sub]
         indices = indices[:s]
