@@ -73,7 +73,7 @@ def check_stopping(local_centroids, previous_centroids, epsilon):
     flat_centroids = [np.matrix(w.reshape(1, m*n)) for w in local_centroids]
     flat_previous = [np.matrix(w.reshape(1, m*n)) for w in previous_centroids]
     # delta is the change in centroids, computed by distance metric
-    delta = np.sum([cdist(w, flat_previous[k])
+    delta = np.sum([cdist(w, flat_previous[k],metric='correlation')
                     for k, w in enumerate(flat_centroids)])
     return delta > epsilon, delta
 
@@ -90,10 +90,11 @@ def compute_clustering(local_X, local_centroids):
     """
     cluster_labels = []
     m, n = get_data_dims(local_X)
+    print("Dims of data %d, %d" % (m,n))
     X_flat = [np.matrix(x.reshape(1, m*n)) for x in local_X]
     w_flat = [np.matrix(w.reshape(1, m*n)) for w in local_centroids]
     for x in X_flat:
-        distances = [cdist(x, w) for w in w_flat]
+        distances = [cdist(x, w, metric='correlation') for w in w_flat]
         min_index = distances.index(np.min(distances))
         cluster_labels.append(min_index)
     return cluster_labels

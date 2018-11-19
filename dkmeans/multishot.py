@@ -24,7 +24,7 @@ Algorithm Flow -
 
 import numpy as np
 import logging
-
+import copy
 import dkmeans.local_computations as local
 import dkmeans.remote_computations as remote
 from dkmeans.data import split_over_nodes, get_dataset, get_data_dims
@@ -39,25 +39,27 @@ DEFAULT_verbose = True
 
 
 logger = logging.getLogger('dkmeans')
+logger.addHandler(logging.FileHandler('./dkmeans.log'))
 logger.setLevel(logging.INFO)
 
 
 def main(X, k, optimization=DEFAULT_optimization, s=DEFAULT_s,
          epsilon=DEFAULT_epsilon, shuffle=DEFAULT_shuffle, lr=DEFAULT_lr,
-         verbose=DEFAULT_verbose):
+         verbose=DEFAULT_verbose, init_centroids=None):
     m, n = get_data_dims(X)
     nodes, inds = split_over_nodes(X, s, shuffle=shuffle)
     X = [X[i] for i in inds]  # Reshuffle x to match the random
     tracked_delta = []
     num_iter = 0
     not_converged = True
-
-    # Have each site compute k initial clusters locally
-    local_centroids = [cent for node in nodes for cent in
-                       local.initialize_own_centroids(node, k)]
-    # and select k random clusters from the s*k pool
-    np.random.shuffle(local_centroids)
-    remote_centroids = local_centroids[:k]
+    remote_centroids = init_centroids
+    if init_centroids is None:
+        # Have each site compute k initial clusters locally
+        local_centroids = [cent for node in nodes for cent in
+                           local.initialize_own_centroids(node, k)]
+        # and select k random clusters from the s*k pool
+        np.random.shuffle(local_centroids)
+        remote_centroids = local_centroids[:k]
 
     # Remote Optimization Loop
     while not_converged:
@@ -88,8 +90,8 @@ def main(X, k, optimization=DEFAULT_optimization, s=DEFAULT_s,
             remote_optimizer = [r / s for r in remote_optimizer]
 
             # Then, update centroids as corresponding to the local mean
-            previous = remote_centroids[:]
-            remote_centroids = remote_optimizer[:]
+            previous = copy.deepcopy(remote_centroids)
+            remote_centroids = copy.deepcopy(remote_optimizer)
 
         elif optimization == 'gradient':
             # Then, update centroids according to one step of gradient descent
