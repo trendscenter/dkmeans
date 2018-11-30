@@ -11,6 +11,7 @@ Common Input Specifications:
     k - number of clusters (integer)
 """
 import numpy as np
+import copy
 from scipy.spatial.distance import cdist
 from dkmeans.data import get_data_dims
 
@@ -99,6 +100,23 @@ def compute_clustering(local_X, local_centroids):
         min_index = distances.index(np.min(distances))
         cluster_labels.append(min_index)
     return cluster_labels
+
+
+def pp_init(local_X, k):
+    """Do a version of KM++ initialization"""
+    ind = np.random.choice(len(local_X), 1)[0]
+    m, n = get_data_dims(local_X)
+    X_flat = [np.matrix(x.reshape(1, m*n)) for x in local_X]
+    first = X_flat[ind]
+    xcopy = copy.deepcopy(local_X)
+    del X_flat[ind]
+    del xcopy[ind]
+    D = [cdist(x, first, metric='correlation')**2 for x in X_flat]
+    D = np.array(D).flatten()
+    norm = np.sum(D)
+    D = np.array([d/norm for d in D])
+    remain = [xcopy[i] for i in np.random.choice(len(xcopy), k-1, p=D)]
+    return [local_X[ind]] + remain
 
 
 def compute_gradient(local_X, local_cluster_labels, local_centroids, lr):

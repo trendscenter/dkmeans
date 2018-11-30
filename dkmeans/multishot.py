@@ -40,6 +40,7 @@ DEFAULT_verbose = True
 
 logger = logging.getLogger('dkmeans')
 logger.addHandler(logging.FileHandler('./dkmeans.log'))
+logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
 
 
@@ -55,8 +56,10 @@ def main(X, k, optimization=DEFAULT_optimization, s=DEFAULT_s,
     remote_centroids = init_centroids
     if init_centroids is None:
         # Have each site compute k initial clusters locally
+        #local_centroids = [cent for node in nodes for cent in
+        #                   local.initialize_own_centroids(node, k)]
         local_centroids = [cent for node in nodes for cent in
-                           local.initialize_own_centroids(node, k)]
+                           local.pp_init(node, k)]
         # and select k random clusters from the s*k pool
         np.random.shuffle(local_centroids)
         remote_centroids = local_centroids[:k]
@@ -114,7 +117,7 @@ def main(X, k, optimization=DEFAULT_optimization, s=DEFAULT_s,
                       local.compute_clustering(node, remote_centroids)]
     return {'centroids': remote_centroids, 'cluster_labels': cluster_labels,
             'X': X, 'delta': tracked_delta, 'num_iter': i,
-            'name': 'multishot_%s' % optimization}
+            'name': 'multishot_%s' % optimization, 'subjects': inds}
 
 
 if __name__ == '__main__':

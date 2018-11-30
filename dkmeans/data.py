@@ -15,6 +15,7 @@ DEFAULT_DATASET = "real_fmri_exemplar"
 DEFAULT_THETA = [[0, 1]]
 DEFAULT_WINDOW = 22
 DEFAULT_M, DEFAULT_N = (1, 2)
+DEFAULT_K = 5
 
 SIMULATED_TC_DIR = ("/export/mialab/users/bbaker/projects/djica/tests3"
                     "/IOTA/SIM/22Sep2017/increase_both/"
@@ -23,17 +24,16 @@ REAL_TC_DIR = ("./dkm_in.mat")
 
 
 def get_dataset(N, dataset=DEFAULT_DATASET, theta=DEFAULT_THETA,
-                dfnc_window=DEFAULT_WINDOW, m=DEFAULT_M, n=DEFAULT_N):
+                dfnc_window=DEFAULT_WINDOW, m=DEFAULT_M, n=DEFAULT_N,
+                k=DEFAULT_K):
     """Convenience function for getting data sets by name
         TODO: Should this be moved to the load data functions? (yes)
     """
     X = None
     i = None
     if dataset == 'gaussian':
-        # TODO!: This line is horrible and hacky, and needs to be fixed
-        X = list(itertools.chain.from_iterable([
-            simulated_gaussian_cluster(int(N/len(theta)), t[0],
-                                       t[1], m=m, n=n) for t in theta]))
+        X, y = datasets.make_blobs(n_samples=N,n_features=n,centers=k)
+        X = [x.reshape(1,n) for x in X]
     elif dataset == 'iris':
         X = datasets.load_iris().data[0:N]
     elif dataset == 'simulated_fmri':
